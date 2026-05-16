@@ -1,0 +1,40 @@
+name: The Plazza CI/CD pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  check-compilation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (optional)
+        run: echo "No extra dependencies needed for now"
+
+      - name: Configure CMake
+        run: cmake -B build -S .
+
+      - name: Compile the project via CMake
+        run: cmake --build build
+        timeout-minutes: 5
+
+  push_to_mirror:
+    needs: check-compilation
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to mirror
+        uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url: ${{ secrets.MIRROR_URL }}
+          ssh_private_key: ${{ secrets.EPITECH_SSH_KEY }}
