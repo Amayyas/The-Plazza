@@ -11,8 +11,7 @@
 namespace Plazza {
     class Reception {
         public:
-            Reception();
-            ~Reception() = default;
+            
     };
 }
 
