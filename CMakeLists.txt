@@ -12,6 +12,9 @@ add_executable(plazza
     src/Thread.cpp
 )
 
+find_package(Threads REQUIRED)
+target_link_libraries(plazza PRIVATE Threads::Threads)
+
 # Doxygen setup
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
