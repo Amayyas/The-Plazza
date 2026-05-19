@@ -3,8 +3,13 @@
 namespace Plazza {
     void ConditionVariable::wait(Mutex& mutex) {
         std::unique_lock<std::mutex> lock(mutex.getNative(), std::adopt_lock);
-        _cv.wait(lock);
-        lock.release();
+        try {
+            _cv.wait(lock);
+            lock.release();
+        } catch (...) {
+            lock.release();
+            throw;
+        }
     }
 
     void ConditionVariable::notifyOne() {
