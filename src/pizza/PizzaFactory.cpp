@@ -5,6 +5,9 @@
 ** PizzaFactory.cpp
 */
 
+/// @file PizzaFactory.cpp
+/// @brief Implementation of the PizzaFactory class.
+
 #include "PizzaFactory.hpp"
 
 namespace Plazza {

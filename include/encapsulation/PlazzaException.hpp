@@ -30,6 +30,6 @@ namespace Plazza {
             /// @brief The error message describing the exception
             std::string _message;
     };
-}  // namespace Plazza
+} // namespace Plazza
 
 #endif

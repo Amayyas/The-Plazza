@@ -5,6 +5,9 @@
 ** Reception.cpp
 */
 
+/// @file Reception.cpp
+/// @brief Implementation of the Reception class.
+
 #include "Reception.hpp"
 
 namespace Plazza {

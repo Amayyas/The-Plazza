@@ -5,6 +5,9 @@
 ** Kitchen.cpp
 */
 
+/// @file Kitchen.cpp
+/// @brief Implementation of the Kitchen class.
+
 #include "Kitchen.hpp"
 
 namespace Plazza {
