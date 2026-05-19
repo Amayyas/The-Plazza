@@ -5,6 +5,9 @@
 ** Reception.hpp
 */
 
+/// @file Reception.hpp
+/// @brief Reception class definition
+
 #ifndef RECEPTION_HPP
     #define RECEPTION_HPP
 
@@ -13,6 +16,6 @@ namespace Plazza {
         public:
             
     };
-}
+} // namespace Plazza
 
 #endif

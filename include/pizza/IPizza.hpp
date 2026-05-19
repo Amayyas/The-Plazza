@@ -5,6 +5,9 @@
 ** IPizza.hpp
 */
 
+/// @file IPizza.hpp
+/// @brief IPizza class definition
+
 #ifndef IPIZZA_HPP
     #define IPIZZA_HPP
 
@@ -13,6 +16,6 @@ namespace Plazza {
         public:
             virtual ~IPizza() = default;
     };
-}
+} // namespace Plazza
 
 #endif

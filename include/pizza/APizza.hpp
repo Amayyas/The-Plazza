@@ -5,6 +5,9 @@
 ** APizza.hpp
 */
 
+/// @file APizza.hpp
+/// @brief APizza class definition
+
 #ifndef APIZZA_HPP
     #define APIZZA_HPP
     #include "IPizza.hpp"
@@ -14,6 +17,6 @@ namespace Plazza {
         public:
             ~APizza() override = default;
     };
-}
+} // namespace Plazza
 
 #endif

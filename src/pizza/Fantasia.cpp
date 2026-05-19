@@ -5,6 +5,9 @@
 ** Fantasia.hpp
 */
 
+/// @file Fantasia.cpp
+/// @brief Implementation of the Fantasia class.
+
 #include "Fantasia.hpp"
 
 namespace Plazza {
