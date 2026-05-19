@@ -5,6 +5,9 @@
 ** Americana.hpp
 */
 
+/// @file Americana.cpp
+/// @brief Implementation of the Americana class.
+
 #include "Americana.hpp"
 
 namespace Plazza {

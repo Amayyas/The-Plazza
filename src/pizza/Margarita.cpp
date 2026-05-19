@@ -5,6 +5,9 @@
 ** Margarita.hpp
 */
 
+/// @file Margarita.cpp
+/// @brief Implementation of the Margarita class.
+
 #include "Margarita.hpp"
 
 namespace Plazza {

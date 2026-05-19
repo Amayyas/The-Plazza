@@ -5,6 +5,9 @@
 ** Regina.hpp
 */
 
+/// @file Regina.hpp
+/// @brief Regina class definition
+
 #ifndef REGINA_HPP
     #define REGINA_HPP
     #include "APizza.hpp"
@@ -13,6 +16,6 @@ namespace Plazza {
     class Regina : public APizza {
         public:
     };
-}
+} // namespace Plazza
 
 #endif

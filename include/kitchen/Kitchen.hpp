@@ -5,6 +5,9 @@
 ** Kitchen.hpp
 */
 
+/// @file Kitchen.hpp
+/// @brief Kitchen class definition
+
 #ifndef KITCHEN_HPP
     #define KITCHEN_HPP
 
@@ -14,6 +17,6 @@ namespace Plazza {
             Kitchen();
             ~Kitchen() = default;
     };
-}
+} // namespace Plazza
 
 #endif
