@@ -25,6 +25,14 @@ namespace Plazza {
          */
         ~Thread();
 
+        /* Disable copying: thread wrappers are not copyable. */
+        Thread(const Thread&) = delete;
+        Thread& operator=(const Thread&) = delete;
+
+        /* Allow moving: propagate the move semantics of std::thread. */
+        Thread(Thread&&) noexcept = default;
+        Thread& operator=(Thread&&) noexcept = default;
+
         /**
          * @brief Start a new execution thread.
          * 
@@ -35,6 +43,11 @@ namespace Plazza {
          */
         template <typename Function, typename... Args>
         void start(Function&& f, Args&&... args) {
+            if (_thread.joinable()) {
+                // Joining existing thread prevents calling std::thread::operator=(thread)
+                // on a joinable thread which would call std::terminate.
+                _thread.join();
+            }
             _thread = std::thread(std::forward<Function>(f), std::forward<Args>(args)...);
         }
 
