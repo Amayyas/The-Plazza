@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-Wall -Wextra -Werror)
 
-add_executable(plazza main.cpp)
+add_executable(plazza src/main.cpp)
