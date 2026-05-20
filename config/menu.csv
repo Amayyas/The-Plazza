@@ -1,0 +1,6 @@
+PizzaType(string);BakingTime(second);Ingredients(list);Price
+margarita;1;dough,tomato,gruyere;6
+regina;2;dough,tomato,gruyere,ham,mushrooms;8
+americana;2;dough,tomato,gruyere,steak;16
+fantasia;4;dough,tomato,eggplant,goat cheese,chief love;7
+hawai;3;dough,tomato,pineapple,ham,gruyere;10

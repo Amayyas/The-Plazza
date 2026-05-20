@@ -1,3 +1,10 @@
+/*
+** EPITECH PROJECT, 2025
+** The-Plazza
+** File description:
+** ConditionVariable.hpp
+*/
+
 #pragma once
 
 #include "Mutex.hpp"

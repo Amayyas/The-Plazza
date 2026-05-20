@@ -1,4 +1,11 @@
-#include "../include/Mutex.hpp"
+/*
+** EPITECH PROJECT, 2025
+** The-Plazza
+** File description:
+** Mutex.cpp
+*/
+
+#include "Mutex.hpp"
 
 namespace Plazza {
     void Mutex::lock() {
