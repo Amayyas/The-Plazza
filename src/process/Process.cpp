@@ -1,4 +1,4 @@
-#include "../include/Process.hpp"
+#include "../../include/process/Process.hpp"
 #include <csignal>
 #include <sys/wait.h>
 
