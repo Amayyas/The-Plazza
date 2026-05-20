@@ -10,8 +10,8 @@ add_executable(plazza
     src/Mutex.cpp
     src/ConditionVariable.cpp
     src/Thread.cpp
-    src/Process.cpp
-    src/IPC.cpp
+    src/process/Process.cpp
+    src/IPC/IPC.cpp
 )
 
 find_package(Threads REQUIRED)
