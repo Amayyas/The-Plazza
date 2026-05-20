@@ -1,4 +1,11 @@
-#include "../include/Thread.hpp"
+/*
+** EPITECH PROJECT, 2025
+** The-Plazza
+** File description:
+** Thread.cpp
+*/
+
+#include "Thread.hpp"
 #include <stdexcept>
 #include <thread>
 

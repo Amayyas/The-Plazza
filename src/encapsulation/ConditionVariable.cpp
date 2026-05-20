@@ -1,4 +1,11 @@
-#include "../include/ConditionVariable.hpp"
+/*
+** EPITECH PROJECT, 2025
+** The-Plazza
+** File description:
+** ConditionVariable.cpp
+*/
+
+#include "ConditionVariable.hpp"
 
 namespace Plazza {
     void ConditionVariable::wait(Mutex& mutex) {
