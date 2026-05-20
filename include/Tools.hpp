@@ -8,10 +8,10 @@
 /// @file Tools.hpp
 /// @brief Tools class definition
 
-#ifndef TOOLS_HPP
-    #define TOOLS_HPP
-    #include <string>
-    #include <vector>
+#pragma once
+
+#include <string>
+#include <vector>
 
 ///
 /// @namespace Tools
@@ -106,5 +106,3 @@ namespace Tools {
         return str;
     }
 } // namespace Tools
-
-#endif

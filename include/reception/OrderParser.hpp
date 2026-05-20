@@ -8,17 +8,17 @@
 /// @file OrderParser.hpp
 /// @brief OrderParser class definition
 
-#ifndef ORDERPARSER_HPP
-    #define ORDERPARSER_HPP
-    #define SYNTHAX_USAGE "Correct order synthax: [PizzaType] [PizzaSize] x[Quantity]"
+#pragma once
 
-    #include "Tools.hpp"
-    #include "IPizza.hpp"
-    #include "PizzaFactory.hpp"
-    #include "PlazzaException.hpp"
+#define SYNTHAX_USAGE "Correct order synthax: [PizzaType] [PizzaSize] x[Quantity]"
 
-    #include <vector>
-    #include <memory>
+#include "Tools.hpp"
+#include "IPizza.hpp"
+#include "PizzaFactory.hpp"
+#include "PlazzaException.hpp"
+
+#include <vector>
+#include <memory>
 
 namespace Plazza {
     ///
@@ -62,5 +62,3 @@ namespace Plazza {
             static PizzaSize parseSize(const std::string &str);
     };
 } // namespace Plazza
-
-#endif

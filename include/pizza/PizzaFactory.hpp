@@ -8,11 +8,11 @@
 /// @file PizzaFactory.hpp
 /// @brief PizzaFactory class definition
 
-#ifndef PIZZAFACTORY_HPP
-    #define PIZZAFACTORY_HPP
-    #include "IPizza.hpp"
-    #include "PlazzaException.hpp"
-    #include <memory>
+#pragma once
+
+#include "IPizza.hpp"
+#include "PlazzaException.hpp"
+#include <memory>
 
 namespace Plazza {
     ///
@@ -34,5 +34,3 @@ namespace Plazza {
             static std::unique_ptr<IPizza> createPizza(const std::string& name, PizzaSize size);
     };
 } // namespace Plazza
-
-#endif

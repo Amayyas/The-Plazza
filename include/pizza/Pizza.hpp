@@ -8,9 +8,9 @@
 /// @file Pizza.hpp
 /// @brief Pizza class definition
 
-#ifndef PIZZA_HPP
-    #define PIZZA_HPP
-    #include "APizza.hpp"
+#pragma once
+
+#include "APizza.hpp"
 
 namespace Plazza {
     ///
@@ -48,5 +48,3 @@ namespace Plazza {
             std::vector<std::string> _ingredients;
     };
 } // namespace Plazza
-
-#endif

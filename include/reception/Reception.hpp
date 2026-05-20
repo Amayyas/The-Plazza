@@ -8,19 +8,19 @@
 /// @file Reception.hpp
 /// @brief Reception class definition
 
-#ifndef RECEPTION_HPP
-    #define RECEPTION_HPP
-    #define PROMPT "$> "
-    #define EXIT "exit"
-    #define EXIT_MESSAGE "End of service, see you tomorrow !"
-    
-    #include <vector>
-    #include <string>
-    #include <memory>
+#pragma once
 
-    #include "IPizza.hpp"
-    #include "Kitchen.hpp"
-    #include "PlazzaException.hpp"
+#define PROMPT "$> "
+#define EXIT "exit"
+#define EXIT_MESSAGE "End of service, see you tomorrow !"
+
+#include <vector>
+#include <string>
+#include <memory>
+
+#include "IPizza.hpp"
+#include "Kitchen.hpp"
+#include "PlazzaException.hpp"
 
 namespace Plazza {
     ///
@@ -95,5 +95,3 @@ namespace Plazza {
             void dispatchPizza(std::unique_ptr<IPizza> pizza);
     };
 } // namespace Plazza
-
-#endif

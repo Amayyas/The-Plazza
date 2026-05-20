@@ -8,9 +8,9 @@
 /// @file APizza.hpp
 /// @brief APizza class definition
 
-#ifndef APIZZA_HPP
-    #define APIZZA_HPP
-    #include "IPizza.hpp"
+#pragma once
+
+#include "IPizza.hpp"
 
 namespace Plazza {
     ///
@@ -53,5 +53,3 @@ namespace Plazza {
             PizzaSize _pizzaSize;
     };
 } // namespace Plazza
-
-#endif

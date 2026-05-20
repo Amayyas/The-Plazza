@@ -8,11 +8,11 @@
 /// @file MenuLoader.hpp
 /// @brief MenuLoader class definition.
 
-#ifndef MENULOADER_HPP
-    #define MENULOADER_HPP
-    #include "IPizza.hpp"
-    #include "PlazzaException.hpp"
-    #include <string>
+#pragma once
+
+#include "IPizza.hpp"
+#include "PlazzaException.hpp"
+#include <string>
 
 namespace Plazza {
     ///
@@ -34,5 +34,3 @@ namespace Plazza {
             static void loadDefaultMenu();
     };
 } // namespace Plazza
-
-#endif

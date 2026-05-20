@@ -8,10 +8,10 @@
 /// @file PlazzaException.hpp
 /// @brief PlazzaException class definition
 
-#ifndef PLAZZAEXCEPTION_HPP
-    #define PLAZZAEXCEPTION_HPP
-    #include <exception>
-    #include <string>
+#pragma once
+
+#include <exception>
+#include <string>
 
 /// @brief Namespace for the Plazza project
 namespace Plazza {
@@ -31,5 +31,3 @@ namespace Plazza {
             std::string _message;
     };
 } // namespace Plazza
-
-#endif

@@ -8,11 +8,11 @@
 /// @file IPizza.hpp
 /// @brief IPizza class definition
 
-#ifndef IPIZZA_HPP
-    #define IPIZZA_HPP
-    #include <map>
-    #include <vector>
-    #include <string>
+#pragma once
+
+#include <map>
+#include <vector>
+#include <string>
 
 namespace Plazza {
     enum PizzaSize
@@ -67,5 +67,3 @@ namespace Plazza {
             virtual const std::vector<std::string>& getIngredients() const = 0;
     };
 } // namespace Plazza
-
-#endif
