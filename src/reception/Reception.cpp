@@ -173,7 +173,7 @@ namespace Plazza {
 
     int Reception::getBestKitchen() 
     {
-
+        return 0;
     }
 
     void Reception::spawnKitchen()
@@ -181,9 +181,8 @@ namespace Plazza {
 
     }
 
-    void Reception::dispatchPizza(std::unique_ptr<IPizza> pizza)
+    void Reception::dispatchPizza([[maybe_unused]] std::unique_ptr<IPizza> pizza)
     {
 
     }
-
 }
