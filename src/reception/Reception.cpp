@@ -10,6 +10,7 @@
 
 #include "Reception.hpp"
 #include "OrderParser.hpp"
+#include <functional>
 #include <iostream>
 #include <iomanip>
 
@@ -53,17 +54,17 @@ namespace Plazza {
 
     void Reception::handleCommand(const std::string &line)
     {
-        if (line == "status") {
-            handleStatus();
-            return;
+        static const std::map<std::string, std::function<void()>> commands = {
+            {"status", [this]() { handleStatus(); }},
+            {"menu", [this]() { displayMenu(); }}
+        };
+        
+        auto it = commands.find(Tools::toLower(Tools::trim(line)));
+        if (it != commands.end()) {
+            it->second();
+        } else {
+            handleOrder(line);
         }
-
-        if (line == "menu") {
-            displayMenu();
-            return;
-        }
-
-        handleOrder(line);
     }
 
     void Reception::handleOrder(const std::string &line)
