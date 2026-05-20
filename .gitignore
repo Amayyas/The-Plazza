@@ -68,3 +68,6 @@ vcpkg_installed/
 Testing/
 .cache/
 docs/
+
+# binary file
+plazza
