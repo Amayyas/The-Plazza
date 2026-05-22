@@ -32,31 +32,6 @@ namespace Plazza {
         {"XXL", PizzaSize::XXL}
     };
 
-    enum class PizzaType {
-        Margarita,
-        Regina,
-        Americana,
-        Fantasia,
-        Hawai,
-        Unknown
-    };
-
-    inline const std::map<PizzaType, std::string> pizzaTypeNames = {
-        {PizzaType::Margarita, "margarita"},
-        {PizzaType::Regina,    "regina"},
-        {PizzaType::Americana, "americana"},
-        {PizzaType::Fantasia,  "fantasia"},
-        {PizzaType::Hawai,     "hawai"},
-    };
-
-    inline const std::map<std::string, PizzaType> pizzaTypeEnums = {
-        {"margarita", PizzaType::Margarita},
-        {"regina",    PizzaType::Regina},
-        {"americana", PizzaType::Americana},
-        {"fantasia",  PizzaType::Fantasia},
-        {"hawai",     PizzaType::Hawai},
-    };
-
     struct Recipe {
         std::size_t baseCookTime;
         std::vector<std::string> ingredients;
@@ -90,9 +65,5 @@ namespace Plazza {
             /// @brief Get the list of ingredients required for this pizza.
             /// @return const std::vector<std::string>& A reference to the list of ingredients.
             virtual const std::vector<std::string>& getIngredients() const = 0;
-
-            /// @brief Get the type enum value of this pizza.
-            /// @return PizzaType The enum value matching the pizza type, or PizzaType::Unknown.
-            virtual PizzaType getTypeEnum() const = 0;
     };
 } // namespace Plazza
