@@ -95,11 +95,11 @@ namespace Plazza {
 
     void Reception::handleStatus()
     {
-        // ToDo: Displays the kitchens status: current occupancy of the cooks and stocks of ingredients.
         if (_kitchens.empty()) {
             std::cout << "No active kitchens at the moment." << std::endl;
             return;
         }
+
         std::cout << "\n=========================================\n";
         std::cout << "                  MAMATINA\n";
         std::cout << "               Kitchen Status\n";
@@ -110,17 +110,16 @@ namespace Plazza {
         
             _kitchens.at(i).ipc << "STATUS";
 
-            // get kitchen response to "STATUS"
             std::string response;
-            _kitchens.at(i).ipc >> response;
-
-            if (!response.empty()) {
-                std::cout << response << std::endl;
+            if (_kitchens[i].ipc.hasData(20)) {
+                _kitchens[i].ipc >> response;
+                
+                std::cout << response;
             } else {
                 std::cout << "-> Kitchen is not responding." << std::endl;
             }
-
         }
+
         std::cout << "==============================" << std::endl;
     }
 
@@ -254,8 +253,7 @@ namespace Plazza {
             index = _kitchens.size() - 1;
         }
 
-        // std::string serializedPizza = "[type/name];[size]"; // serilizer of amayyas (pack)
-        std::string serializedPizza = pizza->getType() + ";" + std::to_string(static_cast<int>(pizza->getSize()));
+        std::string serializedPizza = PizzaSerializer::pack(*pizza);
 
         _kitchens[index].ipc << serializedPizza;
         _kitchens[index].currentLoad++;

@@ -63,6 +63,20 @@ namespace Plazza {
         _activeFd = _socketPair[1];
     }
 
+    bool IPC::hasData(int timeoutMs)
+    {
+        struct pollfd pfd;
+
+        pfd.fd = _activeFd;
+        pfd.events = POLLIN;
+
+        int nbFd = poll(&pfd, 1, timeoutMs);
+
+        if (nbFd > 0 && pfd.revents == POLLIN)
+            return true;
+        return false;
+    }
+
     IPC& IPC::operator<<(const std::string& message) {
         if (_activeFd == -1) {
             throw std::runtime_error("IPC channel not configured for parent or child mode");

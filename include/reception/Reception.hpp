@@ -21,6 +21,7 @@
 #include "IPC.hpp"
 #include "IPizza.hpp"
 #include "Kitchen.hpp"
+#include "PizzaSerializer.hpp"
 #include "PlazzaException.hpp"
 
 namespace Plazza {
