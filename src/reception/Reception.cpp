@@ -229,6 +229,8 @@ namespace Plazza {
             throw PlazzaException("Failed to fork new kitchen");
 
         if (pid == 0) { // Child
+            // Kitchen kitchen(...);
+
             std::exit(0);
         } else { // Parent
             kitchenIPC.setParentMode();
