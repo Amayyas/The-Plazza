@@ -210,7 +210,7 @@ namespace Plazza {
             std::size_t currentLoad = _kitchens.at(i).currentLoad;
 
             if (currentLoad < maxCapacity) {
-                if (minLoad == -1 || currentLoad < minLoad) {
+                if (minLoad == -1 || static_cast<int>(currentLoad) < minLoad) {
                     minLoad = currentLoad;
                     bestKitchenIdx = i;
                 }
@@ -229,8 +229,6 @@ namespace Plazza {
             throw PlazzaException("Failed to fork new kitchen");
 
         if (pid == 0) { // Child
-            Kitchen kitchen();
-
             std::exit(0);
         } else { // Parent
             kitchenIPC.setParentMode();
@@ -240,7 +238,7 @@ namespace Plazza {
             newKitchen.ipc = std::move(kitchenIPC);
             newKitchen.currentLoad = 0;
 
-            _kitchens.push_back(newKitchen);
+            _kitchens.push_back(std::move(newKitchen));
         }
     }
 
