@@ -23,10 +23,4 @@ namespace Plazza {
     {
         return _pizzaSize;
     }
-
-    PizzaType APizza::getTypeEnum() const
-    {
-        auto it = pizzaTypeEnums.find(_name);
-        return it != pizzaTypeEnums.end() ? it->second : PizzaType::Unknown;
-    }
 }
