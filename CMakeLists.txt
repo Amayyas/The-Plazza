@@ -12,6 +12,8 @@ target_include_directories(plazzaInclude INTERFACE
     ${PROJECT_SOURCE_DIR}/include/kitchen
     ${PROJECT_SOURCE_DIR}/include/pizza
     ${PROJECT_SOURCE_DIR}/include/reception
+    ${PROJECT_SOURCE_DIR}/include/IPC
+    ${PROJECT_SOURCE_DIR}/include/process
 )
 
 file(GLOB_RECURSE CORE_FILES CONFIGURE_DEPENDS "src/*.cpp")
