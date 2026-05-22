@@ -43,10 +43,6 @@ namespace Plazza {
             /// @return const std::vector<std::string>& A reference to the list of ingredients.
             const std::vector<std::string>& getIngredients() const override = 0;
 
-            /// @brief Get the type enum value of this pizza.
-            /// @return PizzaType The enum value matching the pizza type, or PizzaType::Unknown.
-            PizzaType getTypeEnum() const override;
-
         protected:
             /// @brief Protected constructor to initialize core pizza attributes.
             /// @param name The identifier/name string of the pizza.
