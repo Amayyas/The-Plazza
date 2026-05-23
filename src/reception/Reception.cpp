@@ -13,6 +13,7 @@
 #include <functional>
 #include <iostream>
 #include <iomanip>
+#include <unistd.h>
 
 namespace Plazza {
     Reception::Reception(float cookingMultiplier, int cooksPerKitchen, int restockDelay, bool ticket):
@@ -94,7 +95,32 @@ namespace Plazza {
 
     void Reception::handleStatus()
     {
-        // ToDo: Displays the kitchens status: current occupancy of the cooks and stocks of ingredients.
+        if (_kitchens.empty()) {
+            std::cout << "No active kitchens at the moment." << std::endl;
+            return;
+        }
+
+        std::cout << "\n=========================================\n";
+        std::cout << "                  MAMATINA\n";
+        std::cout << "               Kitchen Status\n";
+        std::cout << "=========================================\n\n";
+
+        for (std::size_t i = 0; i < _kitchens.size(); i++) {
+            std::cout << "[Kitchen #" << _kitchens.at(i).pid << "]" << std::endl;
+        
+            _kitchens.at(i).ipc << "STATUS";
+
+            std::string response;
+            if (_kitchens[i].ipc.hasData(20)) {
+                _kitchens[i].ipc >> response;
+                
+                std::cout << response;
+            } else {
+                std::cout << "-> Kitchen is not responding." << std::endl;
+            }
+        }
+
+        std::cout << "==============================" << std::endl;
     }
 
     void Reception::displayReceipt(const std::vector<std::unique_ptr<IPizza>> &pizzas)
@@ -173,16 +199,63 @@ namespace Plazza {
 
     int Reception::getBestKitchen() 
     {
-        return 0;
+        int bestKitchenIdx = -1;
+        int minLoad = -1;
+        std::size_t maxCapacity = 2 * _cooksPerKitchen;
+
+        if (_kitchens.empty())
+            return -1;
+
+        for (std::size_t i = 0; i < _kitchens.size(); i++) {
+            std::size_t currentLoad = _kitchens.at(i).currentLoad;
+
+            if (currentLoad < maxCapacity) {
+                if (minLoad == -1 || static_cast<int>(currentLoad) < minLoad) {
+                    minLoad = currentLoad;
+                    bestKitchenIdx = i;
+                }
+            }
+        }
+        return bestKitchenIdx;
     }
 
     void Reception::spawnKitchen()
     {
+        IPC kitchenIPC;
 
+        pid_t pid = fork();
+
+        if (pid == -1)
+            throw PlazzaException("Failed to fork new kitchen");
+
+        if (pid == 0) { // Child
+            // Kitchen kitchen(...);
+
+            std::exit(0);
+        } else { // Parent
+            kitchenIPC.setParentMode();
+
+            KitchenProxy_t newKitchen;
+            newKitchen.pid = pid;
+            newKitchen.ipc = std::move(kitchenIPC);
+            newKitchen.currentLoad = 0;
+
+            _kitchens.push_back(std::move(newKitchen));
+        }
     }
 
     void Reception::dispatchPizza([[maybe_unused]] std::unique_ptr<IPizza> pizza)
     {
+        int index = getBestKitchen();
 
+        if (index == -1) {
+            spawnKitchen();
+            index = _kitchens.size() - 1;
+        }
+
+        std::string serializedPizza = PizzaSerializer::pack(*pizza);
+
+        _kitchens[index].ipc << serializedPizza;
+        _kitchens[index].currentLoad++;
     }
 }

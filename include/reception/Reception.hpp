@@ -18,8 +18,10 @@
 #include <string>
 #include <memory>
 
+#include "IPC.hpp"
 #include "IPizza.hpp"
 #include "Kitchen.hpp"
+#include "PizzaSerializer.hpp"
 #include "PlazzaException.hpp"
 
 namespace Plazza {
@@ -50,7 +52,7 @@ namespace Plazza {
             int _cooksPerKitchen;
             int _restockDelay;
 
-            std::vector<Kitchen> _kitchens;
+            std::vector<KitchenProxy_t> _kitchens;
 
             bool _running;
             bool _ticket;

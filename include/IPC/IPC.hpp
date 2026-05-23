@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <poll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -54,6 +55,13 @@ namespace Plazza {
          * Should be called in the child immediately after fork.
          */
         void setChildMode();
+
+        /**
+         * @brief Check if data is available to read without blocking.
+         * @param timeoutMs Max time to wait in milliseconds.
+         * @return true if data is ready, false if timeout reached.
+         */
+        bool hasData(int timeoutMs);
 
         /**
          * @brief Send a message through the IPC channel.
