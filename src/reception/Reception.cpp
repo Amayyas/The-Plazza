@@ -13,6 +13,7 @@
 #include <functional>
 #include <iostream>
 #include <iomanip>
+#include <chrono>
 #include <unistd.h>
 
 namespace Plazza {
@@ -111,16 +112,23 @@ namespace Plazza {
             _kitchens.at(i).ipc << "STATUS";
 
             std::string response;
-            if (_kitchens[i].ipc.hasData(20)) {
-                _kitchens[i].ipc >> response;
-                
-                std::cout << response;
-            } else {
-                std::cout << "-> Kitchen is not responding." << std::endl;
+            auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(500);
+
+            while (std::chrono::steady_clock::now() < deadline) {
+                if (_kitchens[i].ipc.hasData(50)) {
+                    _kitchens[i].ipc >> response;
+                    if (response == "DONE") {
+                        if (_kitchens[i].currentLoad > 0)
+                            _kitchens[i].currentLoad--;
+                    } else {
+                        std::cout << response;
+                        break;
+                    }
+                }
             }
         }
 
-        std::cout << "==============================" << std::endl;
+        std::cout << "==============================\n" << std::endl;
     }
 
     void Reception::displayReceipt(const std::vector<std::unique_ptr<IPizza>> &pizzas)
