@@ -11,9 +11,11 @@
 #include "MenuLoader.hpp"
 #include "Tools.hpp"
 #include <fstream>
+#include <algorithm>
 
 namespace Plazza {
-    void MenuLoader::loadMenu(const std::string& filepath) {
+    void MenuLoader::loadMenu(const std::string& filepath)
+    {
         std::ifstream file(filepath);
 
         if (!file.is_open()) {
@@ -41,8 +43,14 @@ namespace Plazza {
             recipe.baseCookTime = std::stoul(cookTimeStr);
             
             std::vector<std::string> ingList = Tools::split(ingredientsStr, ",|");
-            for (const auto& ing : ingList)
-                recipe.ingredients.push_back(Tools::trim(ing));
+            for (const auto& ing : ingList) {
+                std::string cleanedIng = Tools::trim(ing);
+                recipe.ingredients.push_back(cleanedIng);
+
+                if (std::find(allKnownIngredients.begin(), allKnownIngredients.end(),
+                    cleanedIng) == allKnownIngredients.end())
+                    allKnownIngredients.push_back(cleanedIng);
+            }
 
             try {
                 recipe.price = std::stod(priceStr);
@@ -54,10 +62,20 @@ namespace Plazza {
         }
     }
 
-    void MenuLoader::loadDefaultMenu() {
+    void MenuLoader::loadDefaultMenu()
+    {
         pizzaRecipes["margarita"] = {1, {"dough", "tomato", "gruyere"}, 6.00};
         pizzaRecipes["regina"]    = {2, {"dough", "tomato", "gruyere", "ham", "mushrooms"}, 8.00};
         pizzaRecipes["americana"] = {2, {"dough", "tomato", "gruyere", "steak"}, 16.00};
         pizzaRecipes["fantasia"]  = {4, {"dough", "tomato", "eggplant", "goat cheese", "chief love"}, 7.00};
+    
+        for (const auto& [name, recipe] : pizzaRecipes) {
+            for (const auto& ingredient : recipe.ingredients) {
+                if (std::find(allKnownIngredients.begin(), allKnownIngredients.end(),
+                    ingredient) == allKnownIngredients.end()) {
+                    allKnownIngredients.push_back(ingredient);
+                }
+            }
+        }
     }
 }

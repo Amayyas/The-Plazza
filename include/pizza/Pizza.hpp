@@ -29,6 +29,9 @@ namespace Plazza {
             Pizza(const std::string& name, PizzaSize size)
                 : APizza(name, size) 
             {
+                if (name.empty())
+                    return;
+
                 const Recipe& recipe = pizzaRecipes.at(name);
                 
                 _cookTime = static_cast<std::size_t>(recipe.baseCookTime * 1000);
