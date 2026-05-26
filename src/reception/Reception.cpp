@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <chrono>
 #include <unistd.h>
+#include <sys/wait.h>
 
 namespace Plazza {
     Reception::Reception(float cookingMultiplier, int cooksPerKitchen, int restockDelay, bool ticket):
@@ -58,6 +59,13 @@ namespace Plazza {
                     if (message == "DONE" && it->currentLoad > 0)
                         it->currentLoad--;
                 }
+
+                int status;
+                pid_t result = waitpid(it->pid, &status, WNOHANG);
+                if (result > 0)
+                    it = _kitchens.erase(it);
+                else
+                    it++;
             }
 
             handleCommand(line);
