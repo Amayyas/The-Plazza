@@ -39,6 +39,7 @@ namespace Plazza {
     };
 
     inline std::map<std::string, Recipe> pizzaRecipes;
+    inline std::vector<std::string> allKnownIngredients;
 
     ///
     /// @class IPizza

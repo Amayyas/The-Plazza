@@ -230,15 +230,16 @@ namespace Plazza {
     void Reception::spawnKitchen()
     {
         IPC kitchenIPC;
-
         pid_t pid = fork();
 
         if (pid == -1)
             throw PlazzaException("Failed to fork new kitchen");
 
         if (pid == 0) { // Child
-            // Kitchen kitchen(...);
+            kitchenIPC.setChildMode();
+            Kitchen kitchen(_cooksPerKitchen, _multiplier, _restockDelay, std::move(kitchenIPC));
 
+            kitchen.run();
             std::exit(0);
         } else { // Parent
             kitchenIPC.setParentMode();
