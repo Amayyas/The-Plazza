@@ -151,12 +151,7 @@ namespace Plazza {
                                 std::chrono::steady_clock::now(), totalCookTimeMs};
             _cookStatesMutex.unlock();
 
-            std::size_t cookElapsed = 0;
-            while (_running && cookElapsed < totalCookTimeMs) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                cookElapsed += 50;
-            }
-
+            Plazza::Thread::sleep(totalCookTimeMs, &_running);
             if (!_running)
                 break;
 
@@ -178,12 +173,7 @@ namespace Plazza {
     void Kitchen::stockRegenerationLoop()
     {
         while (_running) {
-            std::size_t elapsed = 0;
-            while (_running && elapsed < _regenerationTime) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                elapsed += 50;
-            }
-
+            Plazza::Thread::sleep(_regenerationTime, &_running);
             if (!_running)
                 break;
 
