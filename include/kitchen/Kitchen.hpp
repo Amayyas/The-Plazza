@@ -44,6 +44,8 @@ namespace Plazza {
 
     private:
         void cookThreadLoop(std::size_t cookId);
+        void stockRegenerationLoop();
+        bool tryConsumeIngredients(const std::vector<std::string>& ingredients);
         std::string generateStatusReport();
 
         std::size_t _numCooks;
@@ -54,6 +56,10 @@ namespace Plazza {
         Mutex _ipcMutex;
 
         std::vector<std::unique_ptr<Thread>> _cookThreads;
+        Thread _regenThread;
+        
+        Mutex _stockMutex;
+        ConditionVariable _cvStock;
         
         Mutex _activityMutex;
 
