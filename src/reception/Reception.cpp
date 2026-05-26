@@ -50,6 +50,16 @@ namespace Plazza {
                 continue;
             line = line.substr(start, end - start + 1);
 
+            for (auto it = _kitchens.begin(); it != _kitchens.end(); ) {
+                if (it->ipc.hasData(0)) {
+                    std::string message;
+                    it->ipc >> message;
+
+                    if (message == "DONE" && it->currentLoad > 0)
+                        it->currentLoad--;
+                }
+            }
+
             handleCommand(line);
         }
     }
