@@ -24,7 +24,18 @@ namespace Plazza {
     _restockDelay(restockDelay),
     _ticket(ticket) {}
 
-    Reception::~Reception() {}
+    Reception::~Reception()
+    {
+        for (auto &kitchen : _kitchens)
+            kitchen.ipc << "EXIT";
+
+        for (auto &kitchen : _kitchens) {
+            int status = 0;
+            waitpid(kitchen.pid, &status, 0);
+        }
+
+        _kitchens.clear();
+    }
 
     void Reception::run()
     {
