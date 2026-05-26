@@ -13,6 +13,7 @@
 #include <iomanip>
 
 namespace Plazza {
+    static constexpr std::size_t STOCK_CAPACITY = 5;
     static constexpr std::size_t KITCHEN_TIMEOUT = 5;
 
     Kitchen::Kitchen(std::size_t numCooks, double multiplier, std::size_t regenTime, IPC ipc) :
@@ -37,6 +38,8 @@ namespace Plazza {
 
     void Kitchen::run()
     {
+        _regenThread.start(&Kitchen::stockRegenerationLoop, this);
+
         for (std::size_t i = 0; i < _numCooks; ++i) {
             auto cook = std::make_unique<Plazza::Thread>();
             cook->start(&Kitchen::cookThreadLoop, this, i);
@@ -92,6 +95,13 @@ namespace Plazza {
         }
 
         _pizzaQueue.close();
+        
+        _stockMutex.lock();
+        _cvStock.notifyAll();
+        _stockMutex.unlock();
+
+        if (_regenThread.joinable())
+            _regenThread.join();
 
         for (auto& cook : _cookThreads)
             if (cook->joinable())
@@ -105,6 +115,16 @@ namespace Plazza {
 
             if (!_pizzaQueue.pop(pizza))
                 break;
+
+            _stockMutex.lock();
+            while (!tryConsumeIngredients(pizza.getIngredients()) && _running)
+                _cvStock.wait(_stockMutex); 
+
+            if (!_running) {
+                _stockMutex.unlock();
+                break;
+            }
+            _stockMutex.unlock();
 
             std::size_t totalCookTimeMs = pizza.getCookTime() * _timeMultiplier;
 
@@ -128,6 +148,32 @@ namespace Plazza {
             _lastActiveTime = std::chrono::steady_clock::now();
             _activityMutex.unlock();
         }
+    }
+
+    void Kitchen::stockRegenerationLoop()
+    {
+        while (_running) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(_regenerationTime));
+
+            _stockMutex.lock();
+            for (auto& [ingredientName, quantity] : _stock)
+                if (quantity < STOCK_CAPACITY)
+                    quantity++;
+
+            _cvStock.notifyAll();
+            _stockMutex.unlock();
+        }
+    }
+
+    bool Kitchen::tryConsumeIngredients(const std::vector<std::string>& ingredients)
+    {
+        for (const auto& reqIngredient : ingredients)
+            if (_stock[reqIngredient] == 0)
+                return false;
+
+        for (const auto& reqIngredient : ingredients)
+            _stock[reqIngredient]--;
+        return true;
     }
 
     std::string Kitchen::generateStatusReport()
@@ -163,6 +209,11 @@ namespace Plazza {
             report += "    - " + pizza.getType() + "\n";
 
         report += "  Ingredients stock:\n";
+        _stockMutex.lock();
+        for (const auto& [ingredientName, quantity] : _stock) {
+            report += "    - " + ingredientName + ": " + std::to_string(quantity) + "\n";
+        }
+        _stockMutex.unlock();
 
         return report;
     }
