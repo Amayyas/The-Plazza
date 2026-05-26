@@ -138,7 +138,7 @@ namespace Plazza {
             }
         }
 
-        std::cout << "==============================\n" << std::endl;
+        std::cout << "=========================================\n" << std::endl;
     }
 
     void Reception::displayReceipt(const std::vector<std::unique_ptr<IPizza>> &pizzas)
