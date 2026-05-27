@@ -45,6 +45,7 @@ namespace Plazza {
     private:
         void cookThreadLoop(std::size_t cookId);
         void stockRegenerationLoop();
+        std::string generateStatusReport();
         bool tryConsumeIngredients(const std::vector<std::string>& ingredients);
 
         std::size_t _numCooks;
