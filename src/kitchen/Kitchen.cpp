@@ -56,23 +56,30 @@ namespace Plazza {
                 _ipc >> message;
 
                 if (!message.empty()) {
-                    _activityMutex.lock();
-                    _activePizzas++;
-                    _lastActiveTime = std::chrono::steady_clock::now();
-                    _activityMutex.unlock();
-
-                    try {
-                        Plazza::PizzaOrder order = PizzaSerializer::unpack(message);
-
-                        Plazza::Pizza pizza(order.type, order.size);
-                        
-                        _pizzaQueue.push(pizza);
-                    } catch (const std::exception& e) {
-                        std::cerr << "[Kitchen] Error creating pizza: " << e.what() << std::endl;
-                        
+                    if (message == "STATUS") {
+                        std::string report = this->generateStatusReport();
+                        _ipcMutex.lock();
+                        _ipc << report;
+                        _ipcMutex.unlock();
+                    } else {
                         _activityMutex.lock();
-                        _activePizzas--;
+                        _activePizzas++;
+                        _lastActiveTime = std::chrono::steady_clock::now();
                         _activityMutex.unlock();
+    
+                        try {
+                            Plazza::PizzaOrder order = PizzaSerializer::unpack(message);
+    
+                            Plazza::Pizza pizza(order.type, order.size);
+                            
+                            _pizzaQueue.push(pizza);
+                        } catch (const std::exception& e) {
+                            std::cerr << "[Kitchen] Error creating pizza: " << e.what() << std::endl;
+                            
+                            _activityMutex.lock();
+                            _activePizzas--;
+                            _activityMutex.unlock();
+                        }
                     }
                 }
             }
@@ -169,5 +176,47 @@ namespace Plazza {
         for (const auto& reqIngredient : ingredients)
             _stock[reqIngredient]--;
         return true;
+    }
+
+    std::string Kitchen::generateStatusReport()
+    {
+        std::string report;
+
+        report += "  Cooks:\n";
+        _cookStatesMutex.lock();
+        for (std::size_t i = 0; i < _cookStates.size(); i++) {
+            const auto& state = _cookStates.at(i);
+
+            report += "    [Cook #" + std::to_string(i) + "] ";
+            if (state.busy) {
+                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - state.startTime).count();
+
+                double remaining = (static_cast<double>(state.totalCookTimeMs) - elapsed) / 1000.0;
+                if (remaining < 0.0)
+                    remaining = 0.0;
+                
+                std::ostringstream oss;
+                oss << std::fixed << std::setprecision(2) << remaining;
+                report += "Baking " + state.pizzaName + " (" + oss.str() + "s remaining)\n";
+            } else {
+                report += "Waiting\n";
+            }
+        }
+        _cookStatesMutex.unlock();
+
+        auto queued = _pizzaQueue.getItems();
+        report += "  Queue (" + std::to_string(queued.size()) + " pizza(s)):\n";
+        for (const auto& pizza : queued)
+            report += "    - " + pizza.getType() + "\n";
+
+        report += "  Ingredients stock:\n";
+        _stockMutex.lock();
+        for (const auto& [ingredientName, quantity] : _stock) {
+            report += "    - " + ingredientName + ": " + std::to_string(quantity) + "\n";
+        }
+        _stockMutex.unlock();
+
+        return report;
     }
 }

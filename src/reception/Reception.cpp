@@ -13,7 +13,9 @@
 #include <functional>
 #include <iostream>
 #include <iomanip>
+#include <chrono>
 #include <unistd.h>
+#include <sys/wait.h>
 
 namespace Plazza {
     Reception::Reception(float cookingMultiplier, int cooksPerKitchen, int restockDelay, bool ticket):
@@ -49,7 +51,7 @@ namespace Plazza {
                 continue;
             line = line.substr(start, end - start + 1);
 
-            for (auto it = _kitchens.begin(); it != _kitchens.end(); it++) {
+            for (auto it = _kitchens.begin(); it != _kitchens.end();) {
                 if (it->ipc.hasData(0)) {
                     std::string message;
                     it->ipc >> message;
@@ -57,6 +59,13 @@ namespace Plazza {
                     if (message == "DONE" && it->currentLoad > 0)
                         it->currentLoad--;
                 }
+
+                int status;
+                pid_t result = waitpid(it->pid, &status, WNOHANG);
+                if (result > 0)
+                    it = _kitchens.erase(it);
+                else
+                    it++;
             }
 
             handleCommand(line);
@@ -115,7 +124,29 @@ namespace Plazza {
         std::cout << "               Kitchen Status\n";
         std::cout << "=========================================\n\n";
 
-        std::cout << "==============================" << std::endl;
+        for (std::size_t i = 0; i < _kitchens.size(); i++) {
+            std::cout << "[Kitchen #" << _kitchens.at(i).pid << "]" << std::endl;
+        
+            _kitchens.at(i).ipc << "STATUS";
+
+            std::string response;
+            auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(500);
+
+            while (std::chrono::steady_clock::now() < deadline) {
+                if (_kitchens[i].ipc.hasData(50)) {
+                    _kitchens[i].ipc >> response;
+                    if (response == "DONE") {
+                        if (_kitchens[i].currentLoad > 0)
+                            _kitchens[i].currentLoad--;
+                    } else {
+                        std::cout << response;
+                        break;
+                    }
+                }
+            }
+        }
+
+        std::cout << "=========================================\n" << std::endl;
     }
 
     void Reception::displayReceipt(const std::vector<std::unique_ptr<IPizza>> &pizzas)
