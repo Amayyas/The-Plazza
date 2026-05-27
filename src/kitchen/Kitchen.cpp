@@ -13,6 +13,7 @@
 #include <iomanip>
 
 namespace Plazza {
+    static constexpr std::size_t STOCK_CAPACITY = 5;
     static constexpr std::size_t KITCHEN_TIMEOUT = 5;
 
     Kitchen::Kitchen(std::size_t numCooks, double multiplier, std::size_t regenTime, IPC ipc) :
@@ -37,6 +38,8 @@ namespace Plazza {
 
     void Kitchen::run()
     {
+        _regenThread.start(&Kitchen::stockRegenerationLoop, this);
+
         for (std::size_t i = 0; i < _numCooks; ++i) {
             auto cook = std::make_unique<Plazza::Thread>();
             cook->start(&Kitchen::cookThreadLoop, this, i);
@@ -52,12 +55,7 @@ namespace Plazza {
                 std::string message;
                 _ipc >> message;
 
-                if (message == "STATUS") {
-                    std::string report = this->generateStatusReport();
-                    _ipcMutex.lock();
-                    _ipc << report;
-                    _ipcMutex.unlock();
-                } else if (!message.empty()) {
+                if (!message.empty()) {
                     _activityMutex.lock();
                     _activePizzas++;
                     _lastActiveTime = std::chrono::steady_clock::now();
@@ -92,6 +90,13 @@ namespace Plazza {
         }
 
         _pizzaQueue.close();
+        
+        _stockMutex.lock();
+        _cvStock.notifyAll();
+        _stockMutex.unlock();
+
+        if (_regenThread.joinable())
+            _regenThread.join();
 
         for (auto& cook : _cookThreads)
             if (cook->joinable())
@@ -105,6 +110,16 @@ namespace Plazza {
 
             if (!_pizzaQueue.pop(pizza))
                 break;
+
+            _stockMutex.lock();
+            while (!tryConsumeIngredients(pizza.getIngredients()) && _running)
+                _cvStock.wait(_stockMutex); 
+
+            if (!_running) {
+                _stockMutex.unlock();
+                break;
+            }
+            _stockMutex.unlock();
 
             std::size_t totalCookTimeMs = pizza.getCookTime() * _timeMultiplier;
 
@@ -130,40 +145,29 @@ namespace Plazza {
         }
     }
 
-    std::string Kitchen::generateStatusReport()
+    void Kitchen::stockRegenerationLoop()
     {
-        std::string report;
+        while (_running) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(_regenerationTime));
 
-        report += "  Cooks:\n";
-        _cookStatesMutex.lock();
-        for (std::size_t i = 0; i < _cookStates.size(); i++) {
-            const auto& state = _cookStates.at(i);
+            _stockMutex.lock();
+            for (auto& [ingredientName, quantity] : _stock)
+                if (quantity < STOCK_CAPACITY)
+                    quantity++;
 
-            report += "    [Cook #" + std::to_string(i) + "] ";
-            if (state.busy) {
-                auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::steady_clock::now() - state.startTime).count();
-
-                double remaining = (static_cast<double>(state.totalCookTimeMs) - elapsed) / 1000.0;
-                if (remaining < 0.0)
-                    remaining = 0.0;
-                
-                std::ostringstream oss;
-                oss << std::fixed << std::setprecision(2) << remaining;
-                report += "Baking " + state.pizzaName + " (" + oss.str() + "s remaining)\n";
-            } else {
-                report += "Waiting\n";
-            }
+            _cvStock.notifyAll();
+            _stockMutex.unlock();
         }
-        _cookStatesMutex.unlock();
+    }
 
-        auto queued = _pizzaQueue.getItems();
-        report += "  Queue (" + std::to_string(queued.size()) + " pizza(s)):\n";
-        for (const auto& pizza : queued)
-            report += "    - " + pizza.getType() + "\n";
+    bool Kitchen::tryConsumeIngredients(const std::vector<std::string>& ingredients)
+    {
+        for (const auto& reqIngredient : ingredients)
+            if (_stock[reqIngredient] == 0)
+                return false;
 
-        report += "  Ingredients stock:\n";
-
-        return report;
+        for (const auto& reqIngredient : ingredients)
+            _stock[reqIngredient]--;
+        return true;
     }
 }
