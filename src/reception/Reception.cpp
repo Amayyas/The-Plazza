@@ -49,7 +49,7 @@ namespace Plazza {
                 continue;
             line = line.substr(start, end - start + 1);
 
-            for (auto it = _kitchens.begin(); it != _kitchens.end(); ) {
+            for (auto it = _kitchens.begin(); it != _kitchens.end(); it++) {
                 if (it->ipc.hasData(0)) {
                     std::string message;
                     it->ipc >> message;
@@ -114,21 +114,6 @@ namespace Plazza {
         std::cout << "                  MAMATINA\n";
         std::cout << "               Kitchen Status\n";
         std::cout << "=========================================\n\n";
-
-        for (std::size_t i = 0; i < _kitchens.size(); i++) {
-            std::cout << "[Kitchen #" << _kitchens.at(i).pid << "]" << std::endl;
-        
-            _kitchens.at(i).ipc << "STATUS";
-
-            std::string response;
-            if (_kitchens[i].ipc.hasData(20)) {
-                _kitchens[i].ipc >> response;
-                
-                std::cout << response;
-            } else {
-                std::cout << "-> Kitchen is not responding." << std::endl;
-            }
-        }
 
         std::cout << "==============================" << std::endl;
     }
