@@ -55,29 +55,31 @@ namespace Plazza {
                 std::string message;
                 _ipc >> message;
 
-                if (message == "STATUS") {
-                    std::string report = this->generateStatusReport();
-                    _ipcMutex.lock();
-                    _ipc << report;
-                    _ipcMutex.unlock();
-                } else if (!message.empty()) {
-                    _activityMutex.lock();
-                    _activePizzas++;
-                    _lastActiveTime = std::chrono::steady_clock::now();
-                    _activityMutex.unlock();
-
-                    try {
-                        Plazza::PizzaOrder order = PizzaSerializer::unpack(message);
-
-                        Plazza::Pizza pizza(order.type, order.size);
-                        
-                        _pizzaQueue.push(pizza);
-                    } catch (const std::exception& e) {
-                        std::cerr << "[Kitchen] Error creating pizza: " << e.what() << std::endl;
-                        
+                if (!message.empty()) {
+                    if (message == "STATUS") {
+                        std::string report = this->generateStatusReport();
+                        _ipcMutex.lock();
+                        _ipc << report;
+                        _ipcMutex.unlock();
+                    } else {
                         _activityMutex.lock();
-                        _activePizzas--;
+                        _activePizzas++;
+                        _lastActiveTime = std::chrono::steady_clock::now();
                         _activityMutex.unlock();
+    
+                        try {
+                            Plazza::PizzaOrder order = PizzaSerializer::unpack(message);
+    
+                            Plazza::Pizza pizza(order.type, order.size);
+                            
+                            _pizzaQueue.push(pizza);
+                        } catch (const std::exception& e) {
+                            std::cerr << "[Kitchen] Error creating pizza: " << e.what() << std::endl;
+                            
+                            _activityMutex.lock();
+                            _activePizzas--;
+                            _activityMutex.unlock();
+                        }
                     }
                 }
             }
