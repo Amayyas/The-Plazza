@@ -13,7 +13,9 @@
 #include <functional>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <chrono>
+#include <ctime>
 #include <unistd.h>
 #include <sys/wait.h>
 
@@ -172,41 +174,61 @@ namespace Plazza {
 
     void Reception::displayReceipt(const std::vector<std::unique_ptr<IPizza>> &pizzas)
     {
+        auto orderTime = std::chrono::system_clock::now();
+        std::time_t orderTimeT = std::chrono::system_clock::to_time_t(orderTime);
+        char startBuf[32];
+        std::strftime(startBuf, sizeof(startBuf), "%H:%M:%S", std::localtime(&orderTimeT));
+
+        std::size_t maxCookMs = 0;
+        for (const auto &pizza : pizzas) {
+            std::size_t t = static_cast<std::size_t>(pizza->getCookTime() * _multiplier);
+            if (t > maxCookMs)
+                maxCookMs = t;
+        }
+        auto estimatedFinish = orderTime + std::chrono::milliseconds(maxCookMs);
+        std::time_t estimatedFinishT = std::chrono::system_clock::to_time_t(estimatedFinish);
+        char endBuf[32];
+        std::strftime(endBuf, sizeof(endBuf), "%H:%M:%S", std::localtime(&estimatedFinishT));
+
         float grandTotal = 0.0f;
-        
+
         std::cout << "\n-----------------------------------------\n";
         std::cout << "               MAMATINA\n";
         std::cout << " 1 Rue des Pertuisanes, 34000 Montpellier\n";
         std::cout << "-----------------------------------------\n";
-        
+        std::cout << " Order placed : " << startBuf << "\n";
+        std::cout << " Est. ready   : " << endBuf
+                  << " (+" << maxCookMs << " ms)\n";
+        std::cout << "-----------------------------------------\n";
+
         for (auto &pizza : pizzas) {
             std::string typeStr = pizza->getType();
             std::string sizeStr = "U";
-            
+
             for (auto const& [str, s] : pizzaSizes)
-                if (s == pizza->getSize()) 
-                    sizeStr = str; 
-            
+                if (s == pizza->getSize())
+                    sizeStr = str;
+
             if (!typeStr.empty())
                 typeStr[0] = std::toupper(typeStr[0]);
-            
+
             float price = pizzaRecipes.at(pizza->getType()).price;
             grandTotal += price;
 
             std::string productLine = typeStr + " (" + sizeStr + ")";
 
-            std::cout << std::left << std::setfill('.') << std::setw(30) << productLine 
+            std::cout << std::left << std::setfill('.') << std::setw(30) << productLine
                       << " " << std::fixed << std::setprecision(2) << price << " €\n";
         }
-        
+
         std::cout << "-----------------------------------------\n";
-        std::cout << std::left << std::setfill('.') << std::setw(30) << " TOTAL" 
+        std::cout << std::left << std::setfill('.') << std::setw(30) << " TOTAL"
                   << " " << std::fixed << std::setprecision(2) << grandTotal << " €\n";
         std::cout << "-----------------------------------------\n";
         std::cout << " Tel: 04 99 66 45 09\n";
         std::cout << " Mail: contact@mamatina-plazza.fr\n";
         std::cout << "-----------------------------------------\n\n";
-
+        std::cout << std::setfill(' ');
     }
 
     void Reception::displayMenu()
