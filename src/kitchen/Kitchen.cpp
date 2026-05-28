@@ -9,6 +9,7 @@
 /// @brief Implementation of the Kitchen class.
 
 #include "Kitchen.hpp"
+#include "Tools.hpp"
 #include <sstream>
 #include <iomanip>
 
@@ -34,6 +35,16 @@ namespace Plazza {
     Kitchen::~Kitchen()
     {
         _pizzaQueue.close();
+
+        if (_regenThread.joinable())
+            _regenThread.join();
+
+        for (auto &cook : _cookThreads)
+            if (cook && cook->joinable())
+                cook->join();
+        
+        pizzaRecipes.clear();
+        allKnownIngredients.clear();
     }
 
     void Kitchen::run()
@@ -55,33 +66,7 @@ namespace Plazza {
                 std::string message;
                 _ipc >> message;
 
-                if (!message.empty()) {
-                    if (message == "STATUS") {
-                        std::string report = this->generateStatusReport();
-                        _ipcMutex.lock();
-                        _ipc << report;
-                        _ipcMutex.unlock();
-                    } else {
-                        _activityMutex.lock();
-                        _activePizzas++;
-                        _lastActiveTime = std::chrono::steady_clock::now();
-                        _activityMutex.unlock();
-    
-                        try {
-                            Plazza::PizzaOrder order = PizzaSerializer::unpack(message);
-    
-                            Plazza::Pizza pizza(order.type, order.size);
-                            
-                            _pizzaQueue.push(pizza);
-                        } catch (const std::exception& e) {
-                            std::cerr << "[Kitchen] Error creating pizza: " << e.what() << std::endl;
-                            
-                            _activityMutex.lock();
-                            _activePizzas--;
-                            _activityMutex.unlock();
-                        }
-                    }
-                }
+                handleMessage(message);
             }
 
             // Timeout check (5 seconds)
@@ -106,8 +91,43 @@ namespace Plazza {
             _regenThread.join();
 
         for (auto& cook : _cookThreads)
-            if (cook->joinable())
+            if (cook && cook->joinable())
                 cook->join();
+        _cookThreads.clear();
+    }
+
+    void Kitchen::handleMessage(const std::string &message)
+    {
+        static const std::map<std::string, std::function<void()>> messages = {
+            {"STATUS", [this]() { sendStatus(); }},
+            {"EXIT", [this]() { _running = false; }}
+        };
+
+        if (!message.empty()) {
+            auto it = messages.find(Tools::toUpper(Tools::trim(message)));
+            if (it != messages.end()) {
+                it->second();
+            } else {
+                _activityMutex.lock();
+                _activePizzas++;
+                _lastActiveTime = std::chrono::steady_clock::now();
+                _activityMutex.unlock();
+
+                try {
+                    Plazza::PizzaOrder order = PizzaSerializer::unpack(message);
+
+                    Plazza::Pizza pizza(order.type, order.size);
+                    
+                    _pizzaQueue.push(pizza);
+                } catch (const std::exception& e) {
+                    std::cerr << "[Kitchen] Error creating pizza: " << e.what() << std::endl;
+                    
+                    _activityMutex.lock();
+                    _activePizzas--;
+                    _activityMutex.unlock();
+                }
+            }
+        }
     }
 
     void Kitchen::cookThreadLoop(std::size_t cookId)
@@ -135,7 +155,9 @@ namespace Plazza {
                                 std::chrono::steady_clock::now(), totalCookTimeMs};
             _cookStatesMutex.unlock();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(totalCookTimeMs));
+            Plazza::Thread::sleep(totalCookTimeMs, &_running);
+            if (!_running)
+                break;
 
             _cookStatesMutex.lock();
             _cookStates[cookId] = {false, "", {}, 0};
@@ -155,7 +177,9 @@ namespace Plazza {
     void Kitchen::stockRegenerationLoop()
     {
         while (_running) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(_regenerationTime));
+            Plazza::Thread::sleep(_regenerationTime, &_running);
+            if (!_running)
+                break;
 
             _stockMutex.lock();
             for (auto& [ingredientName, quantity] : _stock)
@@ -176,6 +200,15 @@ namespace Plazza {
         for (const auto& reqIngredient : ingredients)
             _stock[reqIngredient]--;
         return true;
+    }
+
+    void Kitchen::sendStatus()
+    {
+        std::string report = this->generateStatusReport();
+
+        _ipcMutex.lock();
+        _ipc << report;
+        _ipcMutex.unlock();
     }
 
     std::string Kitchen::generateStatusReport()

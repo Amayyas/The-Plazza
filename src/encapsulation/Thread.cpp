@@ -38,4 +38,18 @@ namespace Plazza {
     bool Thread::joinable() const {
         return _thread.joinable();
     }
+
+    void Thread::sleep(std::size_t durationMs, const bool *running)
+    {
+        std::size_t elapsed = 0;
+        constexpr std::size_t step = 20;
+
+        while (elapsed < durationMs) {
+            if (running && !(*running))
+                break;
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(step));
+            elapsed += step;
+        }
+    }
 }

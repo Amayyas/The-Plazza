@@ -24,7 +24,19 @@ namespace Plazza {
     _restockDelay(restockDelay),
     _ticket(ticket) {}
 
-    Reception::~Reception() {}
+    Reception::~Reception()
+    {
+        for (auto &kitchen : _kitchens)
+            if (kill(kitchen.pid, 0) == 0)
+                kitchen.ipc << "EXIT";
+
+        for (auto &kitchen : _kitchens) {
+            int status = 0;
+            waitpid(kitchen.pid, &status, 0);
+        }
+
+        _kitchens.clear();
+    }
 
     void Reception::run()
     {
@@ -89,27 +101,36 @@ namespace Plazza {
 
     void Reception::handleOrder(const std::string &line)
     {
-        std::vector<std::unique_ptr<IPizza>> pizzas;
-    
         try {
-            pizzas = OrderParser::parse(line);
+            pizzasOrdered = OrderParser::parse(line);
         } catch (const PlazzaException &e) {
             std::cerr << e.what() << "\n";
             return;
         }
     
-        if (pizzas.empty()) {
+        if (pizzasOrdered.empty()) {
             std::cerr << "Empty order.\n";
             return;
         }
     
         if (_ticket) {
-            displayReceipt(pizzas);
-            std::cout << "[reception] Send " << pizzas.size() << " pizza(s) to kitchens.\n";
+            displayReceipt(pizzasOrdered);
+            std::cout << "[reception] Send " << pizzasOrdered.size() << " pizza(s) to kitchens.\n";
         }
     
-        for (auto &pizza : pizzas)
-            dispatchPizza(std::move(pizza));
+        for (std::size_t i = 0; i < pizzasOrdered.size(); i++)
+            if (getBestKitchen() == -1)
+                spawnKitchen();
+
+        for (auto &pizza : pizzasOrdered) {
+            int index = getBestKitchen();
+            std::string serializedPizza = PizzaSerializer::pack(*pizza);
+
+            _kitchens[index].ipc << serializedPizza;
+            _kitchens[index].currentLoad++;
+        }
+
+        pizzasOrdered.clear();
     }
 
     void Reception::handleStatus()
@@ -255,9 +276,18 @@ namespace Plazza {
 
         if (pid == 0) { // Child
             kitchenIPC.setChildMode();
-            Kitchen kitchen(_cooksPerKitchen, _multiplier, _restockDelay, std::move(kitchenIPC));
 
-            kitchen.run();
+            pizzasOrdered.clear();
+            pizzasOrdered.shrink_to_fit();
+
+            _kitchens.clear();
+            _kitchens.shrink_to_fit();
+
+            {
+                Kitchen kitchen(_cooksPerKitchen, _multiplier, _restockDelay, std::move(kitchenIPC));
+                kitchen.run();
+            }
+
             std::exit(0);
         } else { // Parent
             kitchenIPC.setParentMode();
@@ -271,7 +301,7 @@ namespace Plazza {
         }
     }
 
-    void Reception::dispatchPizza([[maybe_unused]] std::unique_ptr<IPizza> pizza)
+    void Reception::dispatchPizza(std::unique_ptr<IPizza> pizza)
     {
         int index = getBestKitchen();
 

@@ -78,6 +78,13 @@ namespace Plazza {
          */
         bool joinable() const;
 
+        /**
+         * @brief Sleeps for a specified duration, but wakes up immediately if the boolean becomes false.
+         * @param durationMs The total waiting time in milliseconds.
+         * @param running Optional pointer to the activity boolean.
+         */
+        static void sleep(std::size_t durationMs, const bool *running = nullptr);
+
     private:
         std::thread _thread; /**< The underlying execution thread */
     };
