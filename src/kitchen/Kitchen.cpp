@@ -36,12 +36,15 @@ namespace Plazza {
     {
         _pizzaQueue.close();
 
-        for (auto &cook : _cookThreads) {
-            if (cook && cook->joinable()) {
+        if (_regenThread.joinable())
+            _regenThread.join();
+
+        for (auto &cook : _cookThreads)
+            if (cook && cook->joinable())
                 cook->join();
-            }
-        }
-        _cookThreads.clear();
+        
+        pizzaRecipes.clear();
+        allKnownIngredients.clear();
     }
 
     void Kitchen::run()
@@ -90,6 +93,7 @@ namespace Plazza {
         for (auto& cook : _cookThreads)
             if (cook && cook->joinable())
                 cook->join();
+        _cookThreads.clear();
     }
 
     void Kitchen::handleMessage(const std::string &message)

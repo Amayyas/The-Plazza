@@ -53,6 +53,7 @@ namespace Plazza {
             int _restockDelay;
 
             std::vector<KitchenProxy_t> _kitchens;
+            std::vector<std::unique_ptr<IPizza>> pizzasOrdered;
 
             bool _running;
             bool _ticket;
