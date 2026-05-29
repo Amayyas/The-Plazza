@@ -164,7 +164,7 @@ namespace Plazza {
             _cookStatesMutex.unlock();
 
             _ipcMutex.lock();
-            _ipc << "DONE";
+            _ipc << ("DONE:" + PizzaSerializer::pack(pizza));
             _ipcMutex.unlock();
 
             _activityMutex.lock();

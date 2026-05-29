@@ -17,6 +17,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <fstream>
 
 #include "IPC.hpp"
 #include "IPizza.hpp"
@@ -57,6 +58,7 @@ namespace Plazza {
 
             bool _running;
             bool _ticket;
+            std::ofstream _logFile;
 
             /// @brief Infinite interface reading loop that monitors standard input stream states.
             void shellLoop();
@@ -96,5 +98,9 @@ namespace Plazza {
             /// kitchen node's channel.
             /// @param pizza Rvalue context reference transporting tracking ownership rights over the allocated asset.
             void dispatchPizza(std::unique_ptr<IPizza> pizza);
+
+            /// @brief Displays a "pizza ready" notification and appends an entry to the log file.
+            /// @param serializedPizza The packed pizza string following the "DONE:" prefix.
+            void notifyPizzaReady(const std::string &serializedPizza);
     };
 } // namespace Plazza

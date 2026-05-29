@@ -24,7 +24,10 @@ namespace Plazza {
     _multiplier(cookingMultiplier),
     _cooksPerKitchen(cooksPerKitchen),
     _restockDelay(restockDelay),
-    _ticket(ticket) {}
+    _ticket(ticket)
+    {
+        _logFile.open("plazza.log", std::ios::app);
+    }
 
     Reception::~Reception()
     {
@@ -38,6 +41,9 @@ namespace Plazza {
         }
 
         _kitchens.clear();
+
+        if (_logFile.is_open())
+            _logFile.close();
     }
 
     void Reception::run()
@@ -70,8 +76,11 @@ namespace Plazza {
                     std::string message;
                     it->ipc >> message;
 
-                    if (message == "DONE" && it->currentLoad > 0)
-                        it->currentLoad--;
+                    if (message.rfind("DONE:", 0) == 0) {
+                        notifyPizzaReady(message.substr(5));
+                        if (it->currentLoad > 0)
+                            it->currentLoad--;
+                    }
                 }
 
                 int status;
@@ -158,7 +167,8 @@ namespace Plazza {
             while (std::chrono::steady_clock::now() < deadline) {
                 if (_kitchens[i].ipc.hasData(50)) {
                     _kitchens[i].ipc >> response;
-                    if (response == "DONE") {
+                    if (response.rfind("DONE:", 0) == 0) {
+                        notifyPizzaReady(response.substr(5));
                         if (_kitchens[i].currentLoad > 0)
                             _kitchens[i].currentLoad--;
                     } else {
@@ -336,5 +346,33 @@ namespace Plazza {
 
         _kitchens[index].ipc << serializedPizza;
         _kitchens[index].currentLoad++;
+    }
+
+    void Reception::notifyPizzaReady(const std::string &serializedPizza)
+    {
+        std::string pizzaName = "Unknown";
+        std::string sizeStr   = "?";
+
+        try {
+            PizzaOrder order = PizzaSerializer::unpack(serializedPizza);
+            pizzaName = order.type;
+            if (!pizzaName.empty())
+                pizzaName[0] = std::toupper(pizzaName[0]);
+            for (const auto &[str, s] : pizzaSizes)
+                if (s == order.size)
+                    sizeStr = str;
+        } catch (...) {}
+
+        std::string entry = pizzaName + " (" + sizeStr + ") is ready!";
+        std::cout << "\n[Reception] " << entry << "\n" << PROMPT << std::flush;
+
+        if (_logFile.is_open()) {
+            auto now = std::chrono::system_clock::now();
+            std::time_t t = std::chrono::system_clock::to_time_t(now);
+            char buf[32];
+            std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+            _logFile << "[" << buf << "] " << entry << "\n";
+            _logFile.flush();
+        }
     }
 }
