@@ -7,6 +7,7 @@
 
 #include "Thread.hpp"
 #include <stdexcept>
+#include <atomic>
 #include <thread>
 
 namespace Plazza {
@@ -39,7 +40,7 @@ namespace Plazza {
         return _thread.joinable();
     }
 
-    void Thread::sleep(std::size_t durationMs, const bool *running)
+    void Thread::sleep(std::size_t durationMs, const std::atomic<bool> *running)
     {
         std::size_t elapsed = 0;
         constexpr std::size_t step = 20;

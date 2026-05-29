@@ -8,6 +8,7 @@
 #pragma once
 
 #include <thread>
+#include <atomic>
 #include <functional>
 #include <utility>
 
@@ -83,7 +84,7 @@ namespace Plazza {
          * @param durationMs The total waiting time in milliseconds.
          * @param running Optional pointer to the activity boolean.
          */
-        static void sleep(std::size_t durationMs, const bool *running = nullptr);
+        static void sleep(std::size_t durationMs, const std::atomic<bool> *running = nullptr);
 
     private:
         std::thread _thread; /**< The underlying execution thread */
