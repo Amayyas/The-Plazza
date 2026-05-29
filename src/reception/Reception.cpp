@@ -309,6 +309,9 @@ namespace Plazza {
         if (pid == 0) { // Child
             kitchenIPC.setChildMode();
 
+            if (_logFile.is_open())
+                _logFile.close();
+
             pizzasOrdered.clear();
             pizzasOrdered.shrink_to_fit();
 
