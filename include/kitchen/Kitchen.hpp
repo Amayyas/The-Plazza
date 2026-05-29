@@ -11,6 +11,7 @@
 #pragma once
 
 #include <iostream>
+#include <atomic>
 
 #include "IPC.hpp"
 #include "Pizza.hpp"
@@ -68,7 +69,7 @@ namespace Plazza {
         SafeQueue<Pizza> _pizzaQueue;
         std::map<std::string, std::size_t> _stock;
 
-        bool _running;
+        std::atomic<bool> _running;
 
         std::size_t _activePizzas; 
         std::chrono::steady_clock::time_point _lastActiveTime;
