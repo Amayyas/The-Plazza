@@ -56,11 +56,20 @@ namespace Plazza {
             throw PlazzaException("Invalid syntax: \"" + item + "\"\n" + SYNTHAX_USAGE);
         }
 
-        PizzaSize size = parseSize(sizeName);
+        PizzaSize size;
+        try {
+            size = parseSize(sizeName);
+        } catch (const PlazzaException &) {
+            throw PlazzaException("Invalid syntax: \"" + item + "\"\n" + SYNTHAX_USAGE);
+        }
 
         std::vector<std::unique_ptr<IPizza>> pizzas;
-        for (int i = 0; i < quantity; ++i)
-            pizzas.push_back(PizzaFactory::createPizza(typeName, size));
+        try {
+            for (int i = 0; i < quantity; ++i)
+                pizzas.push_back(PizzaFactory::createPizza(typeName, size));
+        } catch (const PlazzaException &) {
+            throw PlazzaException("Unknown pizza type: \"" + typeName + "\"\n" + SYNTHAX_USAGE);
+        }
 
         return pizzas;
     }
