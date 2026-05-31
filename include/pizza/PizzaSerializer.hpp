@@ -16,8 +16,8 @@
 namespace Plazza {
     /// @brief Lightweight struct holding the data needed to reconstruct a pizza order.
     struct PizzaOrder {
-        std::string type;
-        PizzaSize   size;
+        std::string type; ///< Pizza type name (e.g. "margarita").
+        PizzaSize   size; ///< Requested pizza size.
     };
 
     ///

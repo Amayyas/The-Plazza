@@ -15,15 +15,17 @@
 #include <string>
 
 namespace Plazza {
+    /// @brief Available sizes for a pizza order.
     enum PizzaSize
     {
-        S = 1,
-        M = 2,
-        L = 4,
-        XL = 8,
-        XXL = 16
+        S   = 1,  ///< Small
+        M   = 2,  ///< Medium
+        L   = 4,  ///< Large
+        XL  = 8,  ///< Extra-Large
+        XXL = 16  ///< Extra-Extra-Large
     };
 
+    /// @brief Bidirectional lookup table from size string to PizzaSize enum.
     inline std::map<std::string, PizzaSize> pizzaSizes = {
         {"S", PizzaSize::S},
         {"M", PizzaSize::M},
@@ -32,13 +34,20 @@ namespace Plazza {
         {"XXL", PizzaSize::XXL}
     };
 
+    ///
+    /// @struct Recipe
+    /// @brief Holds the cooking data for a single pizza type loaded from the menu.
+    ///
     struct Recipe {
-        std::size_t baseCookTime;
-        std::vector<std::string> ingredients;
-        double price;
+        std::size_t baseCookTime;              ///< Base cooking time in seconds (before multiplier).
+        std::vector<std::string> ingredients;  ///< List of required ingredient names.
+        double price;                          ///< Price of the pizza in euros.
     };
 
+    /// @brief Global registry mapping pizza type names to their recipes (populated by MenuLoader).
     inline std::map<std::string, Recipe> pizzaRecipes;
+
+    /// @brief Flat list of every ingredient name known across all loaded recipes.
     inline std::vector<std::string> allKnownIngredients;
 
     ///
