@@ -92,7 +92,7 @@ namespace Tools {
     inline std::string toLower(std::string str)
     {
         for (char &c : str)
-            c = std::tolower(c);
+            c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
         return str;
     }
 
@@ -102,7 +102,7 @@ namespace Tools {
     inline std::string toUpper(std::string str)
     {
         for (char &c : str)
-            c = std::toupper(c);
+            c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
         return str;
     }
 } // namespace Tools

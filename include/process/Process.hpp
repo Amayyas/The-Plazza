@@ -62,7 +62,7 @@ namespace Plazza {
             if (_pid == 0) {
                 // In child process
                 f(std::forward<Args>(args)...);
-                std::exit(0);
+                _exit(0);
             }
             // In parent process, _pid is the child's PID.
         }

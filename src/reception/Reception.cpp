@@ -185,9 +185,6 @@ namespace Plazza {
     void Reception::displayReceipt(const std::vector<std::unique_ptr<IPizza>> &pizzas)
     {
         auto orderTime = std::chrono::system_clock::now();
-        std::time_t orderTimeT = std::chrono::system_clock::to_time_t(orderTime);
-        char startBuf[32];
-        std::strftime(startBuf, sizeof(startBuf), "%H:%M:%S", std::localtime(&orderTimeT));
 
         std::size_t maxCookMs = 0;
         for (const auto &pizza : pizzas) {
@@ -196,9 +193,16 @@ namespace Plazza {
                 maxCookMs = t;
         }
         auto estimatedFinish = orderTime + std::chrono::milliseconds(maxCookMs);
-        std::time_t estimatedFinishT = std::chrono::system_clock::to_time_t(estimatedFinish);
-        char endBuf[32];
-        std::strftime(endBuf, sizeof(endBuf), "%H:%M:%S", std::localtime(&estimatedFinishT));
+
+        auto formatHMS = [](std::chrono::system_clock::time_point tp) {
+            std::time_t t = std::chrono::system_clock::to_time_t(tp);
+            const std::tm *tm = std::localtime(&t);
+            std::ostringstream oss;
+            oss << std::setw(2) << std::setfill('0') << tm->tm_hour << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_min  << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_sec;
+            return oss.str();
+        };
 
         float grandTotal = 0.0f;
 
@@ -206,8 +210,8 @@ namespace Plazza {
         std::cout << "               MAMATINA\n";
         std::cout << " 1 Rue des Pertuisanes, 34000 Montpellier\n";
         std::cout << "-----------------------------------------\n";
-        std::cout << " Order placed : " << startBuf << "\n";
-        std::cout << " Est. ready   : " << endBuf
+        std::cout << " Order placed : " << formatHMS(orderTime) << "\n";
+        std::cout << " Est. ready   : " << formatHMS(estimatedFinish)
                   << " (+" << maxCookMs << " ms)\n";
         std::cout << "-----------------------------------------\n";
 
@@ -220,7 +224,7 @@ namespace Plazza {
                     sizeStr = str;
 
             if (!typeStr.empty())
-                typeStr[0] = std::toupper(typeStr[0]);
+                typeStr[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(typeStr[0])));
 
             float price = pizzaRecipes.at(pizza->getType()).price;
             grandTotal += price;
@@ -257,7 +261,7 @@ namespace Plazza {
             std::string pizzaName = name;
 
             if (!pizzaName.empty())
-                pizzaName[0] = std::toupper(pizzaName[0]);
+                pizzaName[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(pizzaName[0])));
 
             std::cout << pizzaName << " - " << recipe.price << " €\n";
             std::cout << "    Baking time: " << recipe.baseCookTime << " ms\n";
@@ -323,7 +327,7 @@ namespace Plazza {
                 kitchen.run();
             }
 
-            std::exit(0);
+            _exit(0);
         } else { // Parent
             kitchenIPC.setParentMode();
 
@@ -360,7 +364,7 @@ namespace Plazza {
             PizzaOrder order = PizzaSerializer::unpack(serializedPizza);
             pizzaName = order.type;
             if (!pizzaName.empty())
-                pizzaName[0] = std::toupper(pizzaName[0]);
+                pizzaName[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(pizzaName[0])));
             for (const auto &[str, s] : pizzaSizes)
                 if (s == order.size)
                     sizeStr = str;
@@ -372,9 +376,15 @@ namespace Plazza {
         if (_logFile.is_open()) {
             auto now = std::chrono::system_clock::now();
             std::time_t t = std::chrono::system_clock::to_time_t(now);
-            char buf[32];
-            std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
-            _logFile << "[" << buf << "] " << entry << "\n";
+            const std::tm *tm = std::localtime(&t);
+            std::ostringstream oss;
+            oss << (1900 + tm->tm_year) << '-'
+                << std::setw(2) << std::setfill('0') << (1 + tm->tm_mon) << '-'
+                << std::setw(2) << std::setfill('0') << tm->tm_mday    << ' '
+                << std::setw(2) << std::setfill('0') << tm->tm_hour    << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_min     << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_sec;
+            _logFile << "[" << oss.str() << "] " << entry << "\n";
             _logFile.flush();
         }
     }
