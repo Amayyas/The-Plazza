@@ -37,7 +37,9 @@ namespace Plazza {
         IPC& operator=(const IPC&) = delete;
 
         /* Allow moving */
+        /// @brief Move constructor — transfers ownership of the file descriptors.
         IPC(IPC&& other) noexcept;
+        /// @brief Move assignment — transfers ownership of the file descriptors.
         IPC& operator=(IPC&& other) noexcept;
 
         /**
