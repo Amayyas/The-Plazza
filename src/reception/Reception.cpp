@@ -194,10 +194,13 @@ namespace Plazza {
         }
         auto estimatedFinish = orderTime + std::chrono::milliseconds(maxCookMs);
 
-        auto formatTime = [](std::chrono::system_clock::time_point tp) {
+        auto formatHMS = [](std::chrono::system_clock::time_point tp) {
             std::time_t t = std::chrono::system_clock::to_time_t(tp);
+            const std::tm *tm = std::localtime(&t);
             std::ostringstream oss;
-            oss << std::put_time(std::localtime(&t), "%H:%M:%S");
+            oss << std::setw(2) << std::setfill('0') << tm->tm_hour << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_min  << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_sec;
             return oss.str();
         };
 
@@ -207,8 +210,8 @@ namespace Plazza {
         std::cout << "               MAMATINA\n";
         std::cout << " 1 Rue des Pertuisanes, 34000 Montpellier\n";
         std::cout << "-----------------------------------------\n";
-        std::cout << " Order placed : " << formatTime(orderTime) << "\n";
-        std::cout << " Est. ready   : " << formatTime(estimatedFinish)
+        std::cout << " Order placed : " << formatHMS(orderTime) << "\n";
+        std::cout << " Est. ready   : " << formatHMS(estimatedFinish)
                   << " (+" << maxCookMs << " ms)\n";
         std::cout << "-----------------------------------------\n";
 
@@ -373,8 +376,14 @@ namespace Plazza {
         if (_logFile.is_open()) {
             auto now = std::chrono::system_clock::now();
             std::time_t t = std::chrono::system_clock::to_time_t(now);
+            const std::tm *tm = std::localtime(&t);
             std::ostringstream oss;
-            oss << std::put_time(std::localtime(&t), "%Y-%m-%d %H:%M:%S");
+            oss << (1900 + tm->tm_year) << '-'
+                << std::setw(2) << std::setfill('0') << (1 + tm->tm_mon) << '-'
+                << std::setw(2) << std::setfill('0') << tm->tm_mday    << ' '
+                << std::setw(2) << std::setfill('0') << tm->tm_hour    << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_min     << ':'
+                << std::setw(2) << std::setfill('0') << tm->tm_sec;
             _logFile << "[" << oss.str() << "] " << entry << "\n";
             _logFile.flush();
         }
