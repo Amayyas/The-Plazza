@@ -14,6 +14,7 @@
 #include <exception>
 #include <iostream>
 
+/// @brief Usage string printed on -h / incorrect arguments.
 #define USAGE "USAGE:\n" \
               "    ./plazza multiplier cooks time [--ticket]\n\n" \
               "DESCRIPTION:\n" \
@@ -22,6 +23,10 @@
               "    time          Time in milliseconds for stock replenishment (positive integer).\n" \
               "    --ticket      (Optional) Enables explicit receipt printing at order completion."
 
+/// @brief Program entry point.
+/// @param argc Argument count.
+/// @param argv Argument values: multiplier, cooks, time, [--ticket].
+/// @return 0 on success, 84 on error.
 int main(int argc, char *const *argv)
 {
     bool ticket = false;

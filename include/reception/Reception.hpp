@@ -10,8 +10,11 @@
 
 #pragma once
 
+/// @brief Shell prompt string displayed before each user input line.
 #define PROMPT "$> "
+/// @brief Command keyword that triggers a clean shutdown of the reception.
 #define EXIT "exit"
+/// @brief Message printed to the user upon graceful exit.
 #define EXIT_MESSAGE "End of service, see you tomorrow !"
 
 #include <vector>
@@ -37,9 +40,10 @@ namespace Plazza {
     class Reception {
         public:
             /// @brief Constructor initializing the master system core parameters.
-            /// @param cookingMultiplier Time multiplier setting impacting overall baking speeds.
-            /// @param cooksPerKitchen Maximum number of worker threads allowed per kitchen capsule.
-            /// @param restockDelay Temporal gap (in milliseconds) between ingredient replenishment cycles.
+            /// @param cookingMultiplier Time multiplier applied to each pizza's base cook time.
+            /// @param cooksPerKitchen   Number of cook threads per kitchen.
+            /// @param restockDelay      Ingredient restock interval in milliseconds.
+            /// @param ticket            When true, print a receipt for each order.
             Reception(float cookingMultiplier, int cooksPerKitchen, int restockDelay, bool ticket=false);
 
             /// @brief Destructor handling safe termination and cleanup of sub-processes and resources.
