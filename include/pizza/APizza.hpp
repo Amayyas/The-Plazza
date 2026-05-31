@@ -49,7 +49,7 @@ namespace Plazza {
             /// @param size The target size of the pizza.
             APizza(const std::string& name, PizzaSize size);
 
-            std::string _name;
-            PizzaSize _pizzaSize;
+            std::string _name;      ///< Pizza type name (e.g. "margarita").
+            PizzaSize _pizzaSize;   ///< Requested size of the pizza.
     };
 } // namespace Plazza

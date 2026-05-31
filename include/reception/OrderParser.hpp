@@ -10,6 +10,7 @@
 
 #pragma once
 
+/// @brief Human-readable syntax reminder shown alongside parse error messages.
 #define SYNTHAX_USAGE "Correct order synthax: [PizzaType] [PizzaSize] x[Quantity]"
 
 #include "Tools.hpp"

@@ -35,7 +35,9 @@ namespace Plazza {
         Process& operator=(const Process&) = delete;
 
         /* Allow moving */
+        /// @brief Move constructor — transfers ownership of the child PID.
         Process(Process&& other) noexcept;
+        /// @brief Move assignment — transfers ownership of the child PID.
         Process& operator=(Process&& other) noexcept;
 
         /**

@@ -15,12 +15,23 @@
 #include "ConditionVariable.hpp"
 
 namespace Plazza {
+    ///
+    /// @class SafeQueue
+    /// @brief Thread-safe blocking queue used as the pizza work queue inside each Kitchen.
+    ///
+    /// Producers call push() to enqueue items; consumers call pop(), which blocks until
+    /// an item is available or the queue is closed. Closing the queue (close()) unblocks
+    /// all waiting consumers so threads can exit cleanly.
+    ///
     template <typename T>
     class SafeQueue {
         public:
+            /// @brief Construct an open queue.
             SafeQueue() : _isOpen(true) {}
             ~SafeQueue() = default;
 
+            /// @brief Push an item onto the queue and wake one waiting consumer.
+            /// @param value The item to enqueue (ignored if the queue is closed).
             void push(const T& value) {
                 _mutex.lock();
 
@@ -32,6 +43,9 @@ namespace Plazza {
                 _mutex.unlock();
             }
 
+            /// @brief Pop an item, blocking until one is available or the queue closes.
+            /// @param value Output parameter filled with the dequeued item.
+            /// @return true on success, false if the queue is closed and empty.
             bool pop(T& value) {
                 _mutex.lock();
 
@@ -50,6 +64,8 @@ namespace Plazza {
                 return true;
             }
 
+            /// @brief Return a snapshot of all queued items without removing them.
+            /// @return std::vector<T> Copy of the current queue contents.
             std::vector<T> getItems() {
                 _mutex.lock();
                 std::queue<T> copy = _queue;
@@ -63,6 +79,7 @@ namespace Plazza {
                 return items;
             }
 
+            /// @brief Close the queue and wake all blocked consumers so they can exit.
             void close() {
                 _mutex.lock();
                 _isOpen = false;
@@ -70,6 +87,7 @@ namespace Plazza {
                 _mutex.unlock();
             }
 
+            /// @brief Return the current number of items in the queue.
             size_t size() {
                 _mutex.lock();
                 size_t s = _queue.size();

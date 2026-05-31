@@ -38,7 +38,9 @@ namespace Plazza {
         Thread& operator=(const Thread&) = delete;
 
         /* Allow moving: propagate the move semantics of std::thread. */
+        /// @brief Move constructor — transfers ownership of the underlying thread.
         Thread(Thread&&) noexcept = default;
+        /// @brief Move assignment — transfers ownership of the underlying thread.
         Thread& operator=(Thread&&) noexcept = default;
 
         /**
