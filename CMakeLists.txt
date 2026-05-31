@@ -22,9 +22,11 @@ add_executable(plazza ${CORE_FILES})
 target_link_libraries(plazza PRIVATE plazzaInclude)
 target_compile_options(plazza PRIVATE -Wall -Wextra -Werror)
 
-set_target_properties(plazza PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set_target_properties(plazza PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+endif()
 
 # Doxygen setup
 find_package(Doxygen)

@@ -23,11 +23,11 @@
 #include "ConditionVariable.hpp"
 
 namespace Plazza {
-    typedef struct {
+    struct KitchenProxy_t {
         pid_t pid;
         IPC ipc;
         int currentLoad = 0;
-    } KitchenProxy_t;
+    };
 
     struct CookState {
         bool busy = false;
